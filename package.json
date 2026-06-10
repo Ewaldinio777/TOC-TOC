@@ -1,12 +1,16 @@
 {
-  "name": "my-app",
+  "name": "toc-toc",
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
-    "expo": "~56.0.5",
+    "@supabase/ssr": "^0.10.3",
+    "@supabase/supabase-js": "^2.106.2",
+    "expo": "~56.0.8",
+    "expo-sqlite": "~56.0.4",
     "expo-status-bar": "~56.0.4",
     "react": "19.2.3",
-    "react-native": "0.85.3"
+    "react-native": "0.85.3",
+    "react-native-url-polyfill": "^3.0.0"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",

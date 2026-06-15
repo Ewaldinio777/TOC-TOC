@@ -2,28 +2,15 @@ import { useEffect, useState } from 'react'
 import { StyleSheet, View, FlatList, Text } from 'react-native'
 import { supabase } from './lib/supabase'
 
-export default function App() {
-  const [instruments, setInstruments] = useState([])
-
-  useEffect(() => {
-    getInstruments()
-  }, [])
-
-  async function getInstruments() {
-    const { data } = await supabase.from('instruments').select()
-    setInstruments(data)
-  }
+export default function App() {  
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={instruments}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <Text style={styles.item}>{item.name}</Text>
-        )}
-      />
-    </View>
+
+      <View style={styles.container}>
+        <Text>aa</Text>
+      </View>
+
+
   )
 }
 

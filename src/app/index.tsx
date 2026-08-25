@@ -39,17 +39,6 @@ export default function Auth() {
     setLoading(false);
   }
 
-  async function signUpWithEmail() {
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-    });
-
-    if (error) Alert.alert(error.message);
-    setLoading(false);
-  }
-
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <FormControl className="p-4 border border-border/80 rounded-lg w-full">

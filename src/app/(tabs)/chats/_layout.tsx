@@ -6,9 +6,9 @@ export default function ServicesLayout() {
   return (
     <Stack>
       <Stack.Screen
-        name="services-screen"
+        name="chats-screen"
         options={{
-          title: "Servicios",
+          title: "Chats",
         }}
       />
     </Stack>

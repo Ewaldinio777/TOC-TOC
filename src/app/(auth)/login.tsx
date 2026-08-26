@@ -16,7 +16,7 @@ import { EyeIcon, EyeOffIcon } from "@/src/components/ui/icon";
 import { FormControl } from "@/src/components/ui/form-control";
 import { useRouter } from "expo-router";
 
-export default function Auth() {
+export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,9 +28,9 @@ export default function Auth() {
     });
   };
 
-  async function signUpWithEmail() {
+  async function signInWithEmail() {
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
     });
@@ -43,7 +43,7 @@ export default function Auth() {
     <SafeAreaView style={{ flex: 1 }}>
       <FormControl className="p-4 border border-border/80 rounded-lg w-full">
         <VStack className="gap-4 justify-center">
-          <Heading className="text-foreground">Registrate</Heading>
+          <Heading className="text-foreground">Inicio Sesión</Heading>
           <VStack space="xs">
             <Text className="text-foreground/60">Email</Text>
             <Input>
@@ -71,14 +71,13 @@ export default function Auth() {
           </VStack>
           <Button
             className="ml-auto"
-            onPress={signUpWithEmail}
+            onPress={signInWithEmail}
             isDisabled={loading}
           >
-            <ButtonText>Registrarse</ButtonText>
+            <ButtonText>Iniciar Sesión</ButtonText>
           </Button>
-
-          <Button onPress={() => router.replace("/login")}>
-            <ButtonText>Tienes ya una cuenta?</ButtonText>
+          <Button onPress={() => router.replace("/register")}>
+            <ButtonText>Registrarse</ButtonText>
           </Button>
         </VStack>
       </FormControl>

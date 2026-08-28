@@ -3,9 +3,9 @@ import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/utils/supabase";
 // import { updatePushToken } from "@/lib/push-notifications"; // Import helper
 
-
 type AuthContextType = {
   session: Session | null;
+  isLoggedIn: boolean;
   logout: () => Promise<void>;
   signUpAndSignOut: (params: any) => Promise<any>;
 };
@@ -16,6 +16,7 @@ export const AuthProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
+  const isLoggedIn = !!session;
   const ignoreAuthUpdate = React.useRef(false);
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export const AuthProvider: React.FC<{
 
   const logout = async () => {
     // Clear push token before signing out
-    
+
     const { error } = await supabase.auth.signOut();
     if (error) {
       if (error.message === "Auth session missing!") {
@@ -58,7 +59,7 @@ export const AuthProvider: React.FC<{
     try {
       ignoreAuthUpdate.current = true;
       const result = await supabase.auth.signUp(params);
-      
+
       if (result.data.session) {
         // Automatically sign out if session was created
         await supabase.auth.signOut();
@@ -68,12 +69,14 @@ export const AuthProvider: React.FC<{
       // Re-enable auth updates after a short delay to ensure signOut is processed
       setTimeout(() => {
         ignoreAuthUpdate.current = false;
-      }, 500); 
+      }, 500);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ session, logout, signUpAndSignOut }}>
+    <AuthContext.Provider
+      value={{ session, logout, signUpAndSignOut, isLoggedIn }}
+    >
       {children}
     </AuthContext.Provider>
   );

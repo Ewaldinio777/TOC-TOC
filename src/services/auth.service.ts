@@ -18,6 +18,7 @@ export const AuthService = {
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
+      phone,
     });
 
     if (authError) throw new Error(authError.message);
@@ -31,15 +32,14 @@ export const AuthService = {
       .from("user")
       .insert([
         {
-          id: userId, // Vinculamos con el ID de autenticación
+          id: userId,
           name,
           last_name,
-          tipo_de_documento,
           documento,
-          phone,
           state,
           last_seen: new Date().toISOString(),
           avatar_url: null,
+          tipo_de_documento,
         },
       ])
       .select()
@@ -54,5 +54,30 @@ export const AuthService = {
     }
 
     return { authUser: authData.user, profile: userData };
+  },
+
+  // Método para obtener los tipos de documento desde el ENUM de Supabase
+  async getDocumentTypes() {
+    const { data, error } = await supabase.rpc("get_document_type_enum");
+
+    if (error) throw new Error(error.message);
+
+    // Retorna el formato { label, value } para tu AppSelect
+    return (data as string[]).map((type) => ({
+      label: type,
+      value: type,
+    }));
+  },
+
+  async getPrefixesNumber() {
+    const { data, error } = await supabase.rpc("get_prefixes_number");
+
+    if (error) throw new Error(error.message);
+
+    // Retorna el formato { label, value } para tu AppSelect
+    return (data as string[]).map((type) => ({
+      label: type,
+      value: type,
+    }));
   },
 };

@@ -9,7 +9,14 @@ export const registerSchema = z.object({
   email: z.string().email("Ingresa un correo electrónico válido"),
   password: z.string().min(9, "La contraseña debe tener al menos 6 caracteres"),
   tipo_de_documento: z.string().min(1),
+  prefixes_number: z.string().min(1),
+});
+
+export const loginSchema = z.object({
+  email: z.string().email("Ingresa un correo electrónico válido"),
+  password: z.string().min(1, "La contraseña es obligatoria"),
 });
 
 // Infiere el tipo TypeScript automáticamente desde el esquema
 export type RegisterFormData = z.infer<typeof registerSchema>;
+export type LoginFormData = z.infer<typeof loginSchema>;

@@ -1,26 +1,30 @@
+import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useForm, Controller } from "react-hook-form";
+import { ScrollView, View } from "react-native";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, RegisterFormData } from "@/src/schemas/auth.schema";
-import { useRegister } from "@/src/hooks/useRegister";
-
-// Componentes Gluestack UI
-import { Box } from "@/src/components/ui/box";
-import { VStack } from "@/src/components/ui/vstack";
-import { Text } from "@/src/components/ui/text";
-import { Input, InputField } from "@/src/components/ui/input";
-import { Button, ButtonText, ButtonSpinner } from "@/src/components/ui/button";
-import {
-  FormControl,
-  FormControlLabel,
-  FormControlLabelText,
-  FormControlError,
-  FormControlErrorText,
-} from "@/src/components/ui/form-control";
+import { useRegister } from "@/src/hooks/auth/useRegister";
 import { router } from "expo-router";
+
+import { HStack } from "@/src/components/ui/hstack";
+import { Text } from "@/src/components/ui/text";
+import { Button, ButtonText } from "@/src/components/ui/button";
+
+import { AppInput } from "@/src/components/AppComponents/AppInput";
+import { AppButton } from "@/src/components/AppComponents/AppButton";
+import { AppHeader } from "@/src/components/AppComponents/AppHeader";
+import { AppSocial } from "@/src/components/AppComponents/AppSocial";
+import { AppSelect } from "@/src/components/AppComponents/AppSelect";
+import { useDocumentTypes } from "@/src/hooks/auth/useDocumentTypes";
+import { usePrefixesNumber } from "@/src/hooks/auth/usePrefixesNumber";
 
 export default function RegisterScreen() {
   const registerMutation = useRegister();
+  const { data: documentTypes = [], isLoading: isLoadingDocs } =
+    useDocumentTypes();
+
+  const { data: prefixesNumber = [] } = usePrefixesNumber();
 
   const {
     control,
@@ -33,6 +37,9 @@ export default function RegisterScreen() {
 
   const onSubmit = (data: RegisterFormData) => {
     registerMutation.mutate(data, {
+      onSuccess: () => {
+        router.replace("/(auth)/login");
+      },
       onError: (error) => {
         if (error.message.includes("already registered")) {
           setError("email", { message: "Este correo ya está registrado." });
@@ -46,244 +53,141 @@ export default function RegisterScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <Box className="flex-1 p-6 justify-center">
-        <VStack space="md">
-          {/* Campo Nombre */}
-          <FormControl isInvalid={!!errors.name}>
-            <FormControlLabel>
-              <FormControlLabelText>Nombre</FormControlLabelText>
-            </FormControlLabel>
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { onChange, value } }) => (
-                <Input>
-                  <InputField
-                    placeholder="Tu nombre"
-                    value={value}
-                    onChangeText={onChange}
-                  />
-                </Input>
-              )}
-            />
-            <FormControlError>
-              <FormControlErrorText>
-                {errors.name?.message}
-              </FormControlErrorText>
-            </FormControlError>
-          </FormControl>
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View className="flex-1 px-8 pt-10 pb-6">
+          <AppHeader
+            title="Everything You Need!"
+            subtitle="Create account and start exploring."
+          />
 
-          {/* Campo Apellido */}
-          <FormControl isInvalid={!!errors.last_name}>
-            <FormControlLabel>
-              <FormControlLabelText>Apellido</FormControlLabelText>
-            </FormControlLabel>
-            <Controller
-              control={control}
-              name="last_name"
-              render={({ field: { onChange, value } }) => (
-                <Input>
-                  <InputField
-                    placeholder="Apellido"
-                    value={value}
-                    onChangeText={onChange}
-                  />
-                </Input>
-              )}
-            />
-            <FormControlError>
-              <FormControlErrorText>
-                {errors.last_name?.message}
-              </FormControlErrorText>
-            </FormControlError>
-          </FormControl>
+          <AppInput
+            control={control}
+            name="name"
+            label="First Name"
+            placeholder="Enter first name"
+          />
+          <AppInput
+            control={control}
+            name="last_name"
+            label="Last Name"
+            placeholder="Enter last name"
+          />
 
-          {/* Campo Documento 1*/}
-          <FormControl isInvalisd={!!errors.documento || !!errors.}>
-            <FormControlLabel>
-              <FormControlLabelText>N°</FormControlLabelText>
-            </FormControlLabel>
-            <Controller
-              control={control}
-              name="documento"
-              render={({ field: { onChange, value } }) => (
-                <Input>
-                  <InputField
-                    placeholder="Nº Documento"
-                    value={value}
-                    onChangeText={onChange}
-                    keyboardType="number-pad"
-                  />
-                </Input>
-              )}
-            />
-            <FormControlError>
-              <FormControlErrorText>
-                {errors.email?.message}
-              </FormControlErrorText>
-            </FormControlError>
-          </FormControl>
+          <HStack className="items-start gap-3">
+            <View className="flex-1">
+              <AppSelect
+                control={control}
+                options={documentTypes}
+                name="tipo_de_documento"
+                label="Document"
+                placeholder="Enter document type"
+                containerClassName="mb-3"
+                selectClassName="h-12"
+              />
+            </View>
 
-          {/* Campo Documento 2*/}
-          <FormControl isInvalid={!!errors.documento}>
-            <FormControlLabel>
-              <FormControlLabelText>Documento</FormControlLabelText>
-            </FormControlLabel>
-            <Controller
-              control={control}
-              name="documento"
-              render={({ field: { onChange, value } }) => (
-                <Input>
-                  <InputField
-                    placeholder="Nº Documento"
-                    value={value}
-                    onChangeText={onChange}
-                    keyboardType="number-pad"
-                  />
-                </Input>
-              )}
-            />
-            <FormControlError>
-              <FormControlErrorText>
-                {errors.email?.message}
-              </FormControlErrorText>
-            </FormControlError>
-          </FormControl>
+            <View className="flex-1">
+              <AppInput
+                control={control}
+                name="documento"
+                label="Document ID"
+                placeholder="Enter document ID"
+                keyboardType="number-pad"
+                containerClassName="mb-0"
+                inputClassName="h-12"
+              />
+            </View>
+          </HStack>
 
-          {/* Campo Teléfono */}
-          <FormControl isInvalid={!!errors.email}>
-            <FormControlLabel>
-              <FormControlLabelText>Teléfono</FormControlLabelText>
-            </FormControlLabel>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, value } }) => (
-                <Input>
-                  <InputField
-                    placeholder="ejemplo@correo.com"
-                    value={value}
-                    onChangeText={onChange}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                  />
-                </Input>
-              )}
-            />
-            <FormControlError>
-              <FormControlErrorText>
-                {errors.email?.message}
-              </FormControlErrorText>
-            </FormControlError>
-          </FormControl>
+          <HStack className="items-start gap-3">
+            <View className="flex-1">
+              <AppSelect
+                control={control}
+                options={prefixesNumber}
+                name="prefixes_number"
+                label="Prefijo"
+                placeholder="Enter prefix"
+                containerClassName="mb-3"
+                selectClassName="h-12"
+              />
+            </View>
 
-          {/* Campo Estado */}
-          <FormControl isInvalid={!!errors.email}>
-            <FormControlLabel>
-              <FormControlLabelText>Estado</FormControlLabelText>
-            </FormControlLabel>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, value } }) => (
-                <Input>
-                  <InputField
-                    placeholder="ejemplo@correo.com"
-                    value={value}
-                    onChangeText={onChange}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                  />
-                </Input>
-              )}
-            />
-            <FormControlError>
-              <FormControlErrorText>
-                {errors.email?.message}
-              </FormControlErrorText>
-            </FormControlError>
-          </FormControl>
+            <View className="flex-1">
+              <AppInput
+                control={control}
+                name="phone"
+                label="Phone"
+                placeholder="Enter phone number"
+                keyboardType="phone-pad"
+                containerClassName="mb-0"
+                inputClassName="h-12"
+              />
+            </View>
+          </HStack>
 
-          {/* Campo Email */}
-          <FormControl isInvalid={!!errors.email}>
-            <FormControlLabel>
-              <FormControlLabelText>Correo electrónico</FormControlLabelText>
-            </FormControlLabel>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, value } }) => (
-                <Input>
-                  <InputField
-                    placeholder="ejemplo@correo.com"
-                    value={value}
-                    onChangeText={onChange}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                  />
-                </Input>
-              )}
-            />
-            <FormControlError>
-              <FormControlErrorText>
-                {errors.email?.message}
-              </FormControlErrorText>
-            </FormControlError>
-          </FormControl>
+          <AppInput
+            control={control}
+            name="state"
+            label="State/Region"
+            placeholder="Enter state or region"
+          />
 
-          {/* Campo Email */}
-          <FormControl isInvalid={!!errors.email}>
-            <FormControlLabel>
-              <FormControlLabelText>Correo electrónico</FormControlLabelText>
-            </FormControlLabel>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, value } }) => (
-                <Input>
-                  <InputField
-                    placeholder="ejemplo@correo.com"
-                    value={value}
-                    onChangeText={onChange}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                  />
-                </Input>
-              )}
-            />
-            <FormControlError>
-              <FormControlErrorText>
-                {errors.email?.message}
-              </FormControlErrorText>
-            </FormControlError>
-          </FormControl>
+          <AppInput
+            control={control}
+            name="email"
+            label="Email"
+            placeholder="Enter mail"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            error={errors.email?.message}
+          />
 
-          {/* Error general del servidor */}
+          <AppInput
+            control={control}
+            name="password"
+            label="Password"
+            placeholder="Enter password"
+            isPassword
+            error={errors.password?.message}
+          />
+
           {errors.root && (
-            <Text className="text-red-500 text-sm text-center">
+            <Text className="text-error-500 text-sm text-center mb-4">
               {errors.root.message}
             </Text>
           )}
 
-          {/* Botón con Spinner integrado */}
-          <Button
+          <AppButton
+            title="Register"
             onPress={handleSubmit(onSubmit)}
-            isDisabled={registerMutation.isPending}
-            className="mt-4"
-          >
-            {registerMutation.isPending ? (
-              <ButtonSpinner />
-            ) : (
-              <ButtonText>Registrarse</ButtonText>
-            )}
-          </Button>
+            isLoading={registerMutation.isPending}
+            className="mt-6"
+          />
 
-          <Button onPress={() => router.replace("/login")}>
-            <ButtonText>Ya estoy registrado</ButtonText>
-          </Button>
-        </VStack>
-      </Box>
+          <AppSocial />
+
+          <View className="flex-1 justify-end mt-8">
+            <HStack className="justify-center items-center">
+              <Text className="text-typography-900 font-medium">
+                Already have an account?{" "}
+              </Text>
+              <Button
+                variant="link"
+                className="p-0"
+                onPress={() => router.replace("/(auth)/login")}
+              >
+                <ButtonText className="text-brand font-bold text-base">
+                  Log In
+                </ButtonText>
+              </Button>
+            </HStack>
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

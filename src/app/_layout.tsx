@@ -3,7 +3,7 @@ import { GluestackUIProvider } from "@/src/components/ui/gluestack-ui-provider";
 import { AuthProvider } from "@/src/context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-import RootNavigator from "@/src/components/RootNavigator";
+import RootNavigator from "@/src/components/navigate/RootNavigator";
 import "@/global.css";
 
 export default function RootLayout() {

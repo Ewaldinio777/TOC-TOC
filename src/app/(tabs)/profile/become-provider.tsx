@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { supabase } from "@/utils/supabase";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/src/context/AuthContext";
-import { useServices } from "@/src/hooks/useServices";
+import { useServices } from "@/src/hooks/servicios/useServices";
 
 import { Heading } from "@/src/components/ui/heading";
 import { Text } from "@/src/components/ui/text";

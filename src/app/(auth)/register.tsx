@@ -1,6 +1,6 @@
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, KeyboardAvoidingView, Platform } from "react-native";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, RegisterFormData } from "@/src/schemas/auth.schema";
@@ -8,6 +8,7 @@ import { useRegister } from "@/src/hooks/auth/useRegister";
 import { router } from "expo-router";
 
 import { HStack } from "@/src/components/ui/hstack";
+import { VStack } from "@/src/components/ui/vstack";
 import { Text } from "@/src/components/ui/text";
 import { Button, ButtonText } from "@/src/components/ui/button";
 
@@ -21,9 +22,7 @@ import { usePrefixesNumber } from "@/src/hooks/auth/usePrefixesNumber";
 
 export default function RegisterScreen() {
   const registerMutation = useRegister();
-  const { data: documentTypes = [], isLoading: isLoadingDocs } =
-    useDocumentTypes();
-
+  const { data: documentTypes = [] } = useDocumentTypes();
   const { data: prefixesNumber = [] } = usePrefixesNumber();
 
   const {
@@ -38,11 +37,19 @@ export default function RegisterScreen() {
   const onSubmit = (data: RegisterFormData) => {
     registerMutation.mutate(data, {
       onSuccess: () => {
+        // Tras el registro exitoso, llevar al login con mensaje de verificación
         router.replace("/(auth)/login");
       },
       onError: (error) => {
-        if (error.message.includes("already registered")) {
-          setError("email", { message: "Este correo ya está registrado." });
+        const msg = error.message.toLowerCase();
+        if (msg.includes("already registered") || msg.includes("already been registered")) {
+          setError("email", {
+            message: "Este correo ya está registrado.",
+          });
+        } else if (msg.includes("weak password") || msg.includes("password")) {
+          setError("password", {
+            message: "La contraseña no es lo suficientemente segura.",
+          });
         } else {
           setError("root", {
             message: "Ocurrió un error inesperado. Inténtalo de nuevo.",
@@ -54,140 +61,163 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View className="flex-1 px-8 pt-10 pb-6">
-          <AppHeader
-            title="Everything You Need!"
-            subtitle="Create account and start exploring."
-          />
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="flex-1 px-8 pt-10 pb-6">
+            <AppHeader
+              title="¡Crea tu cuenta!"
+              subtitle="Regístrate y comienza a explorar."
+            />
 
-          <AppInput
-            control={control}
-            name="name"
-            label="First Name"
-            placeholder="Enter first name"
-          />
-          <AppInput
-            control={control}
-            name="last_name"
-            label="Last Name"
-            placeholder="Enter last name"
-          />
+            <VStack space="xs">
+              {/* Nombre y Apellido */}
+              <HStack className="items-start gap-3">
+                <View style={{ flex: 1 }}>
+                  <AppInput
+                    control={control}
+                    name="name"
+                    label="Nombre"
+                    placeholder="Tu nombre"
+                    error={errors.name?.message}
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <AppInput
+                    control={control}
+                    name="last_name"
+                    label="Apellido"
+                    placeholder="Tu apellido"
+                    error={errors.last_name?.message}
+                  />
+                </View>
+              </HStack>
 
-          <HStack className="items-start gap-3">
-            <View className="flex-1">
-              <AppSelect
-                control={control}
-                options={documentTypes}
-                name="tipo_de_documento"
-                label="Document"
-                placeholder="Enter document type"
-                containerClassName="mb-3"
-                selectClassName="h-12"
-              />
-            </View>
+              {/* Documento */}
+              <HStack className="items-start gap-3">
+                <View style={{ flex: 1 }}>
+                  <AppSelect
+                    control={control}
+                    options={documentTypes}
+                    name="tipo_de_documento"
+                    label="Tipo de doc."
+                    placeholder="Seleccionar"
+                    containerClassName="mb-3"
+                    selectClassName="h-12"
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <AppInput
+                    control={control}
+                    name="documento"
+                    label="N° de documento"
+                    placeholder="12345678"
+                    keyboardType="number-pad"
+                    containerClassName="mb-0"
+                    inputClassName="h-12"
+                    error={errors.documento?.message}
+                  />
+                </View>
+              </HStack>
 
-            <View className="flex-1">
+              {/* Teléfono */}
+              <HStack className="items-start gap-3">
+                <View style={{ flex: 1 }}>
+                  <AppSelect
+                    control={control}
+                    options={prefixesNumber}
+                    name="prefixes_number"
+                    label="Prefijo"
+                    placeholder="0414"
+                    containerClassName="mb-3"
+                    selectClassName="h-12"
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <AppInput
+                    control={control}
+                    name="phone"
+                    label="Teléfono"
+                    placeholder="1234567"
+                    keyboardType="phone-pad"
+                    containerClassName="mb-0"
+                    inputClassName="h-12"
+                    error={errors.phone?.message}
+                  />
+                </View>
+              </HStack>
+
               <AppInput
                 control={control}
-                name="documento"
-                label="Document ID"
-                placeholder="Enter document ID"
-                keyboardType="number-pad"
-                containerClassName="mb-0"
-                inputClassName="h-12"
+                name="state"
+                label="Estado / Región"
+                placeholder="Ej. Miranda, Caracas..."
+                error={errors.state?.message}
               />
-            </View>
-          </HStack>
 
-          <HStack className="items-start gap-3">
-            <View className="flex-1">
-              <AppSelect
-                control={control}
-                options={prefixesNumber}
-                name="prefixes_number"
-                label="Prefijo"
-                placeholder="Enter prefix"
-                containerClassName="mb-3"
-                selectClassName="h-12"
-              />
-            </View>
-
-            <View className="flex-1">
               <AppInput
                 control={control}
-                name="phone"
-                label="Phone"
-                placeholder="Enter phone number"
-                keyboardType="phone-pad"
-                containerClassName="mb-0"
-                inputClassName="h-12"
+                name="email"
+                label="Correo electrónico"
+                placeholder="tucorreo@ejemplo.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                error={errors.email?.message}
               />
+
+              <AppInput
+                control={control}
+                name="password"
+                label="Contraseña"
+                placeholder="Mínimo 8 caracteres"
+                isPassword
+                error={errors.password?.message}
+              />
+            </VStack>
+
+            {/* Error global */}
+            {errors.root && (
+              <View className="bg-error-50 border border-error-200 rounded-xl px-4 py-3 mt-2">
+                <Text className="text-error-600 text-sm text-center">
+                  {errors.root.message}
+                </Text>
+              </View>
+            )}
+
+            <AppButton
+              title="Crear cuenta"
+              onPress={handleSubmit(onSubmit)}
+              isLoading={registerMutation.isPending}
+              className="mt-6"
+            />
+
+            <AppSocial />
+
+            <View className="flex-1 justify-end mt-4">
+              <HStack className="justify-center items-center">
+                <Text className="text-typography-500 font-medium">
+                  ¿Ya tienes cuenta?{" "}
+                </Text>
+                <Button
+                  variant="link"
+                  className="p-0"
+                  onPress={() => router.replace("/(auth)/login")}
+                >
+                  <ButtonText className="text-brand font-bold text-base">
+                    Inicia sesión
+                  </ButtonText>
+                </Button>
+              </HStack>
             </View>
-          </HStack>
-
-          <AppInput
-            control={control}
-            name="state"
-            label="State/Region"
-            placeholder="Enter state or region"
-          />
-
-          <AppInput
-            control={control}
-            name="email"
-            label="Email"
-            placeholder="Enter mail"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            error={errors.email?.message}
-          />
-
-          <AppInput
-            control={control}
-            name="password"
-            label="Password"
-            placeholder="Enter password"
-            isPassword
-            error={errors.password?.message}
-          />
-
-          {errors.root && (
-            <Text className="text-error-500 text-sm text-center mb-4">
-              {errors.root.message}
-            </Text>
-          )}
-
-          <AppButton
-            title="Register"
-            onPress={handleSubmit(onSubmit)}
-            isLoading={registerMutation.isPending}
-            className="mt-6"
-          />
-
-          <AppSocial />
-
-          <View className="flex-1 justify-end mt-8">
-            <HStack className="justify-center items-center">
-              <Text className="text-typography-900 font-medium">
-                Already have an account?{" "}
-              </Text>
-              <Button
-                variant="link"
-                className="p-0"
-                onPress={() => router.replace("/(auth)/login")}
-              >
-                <ButtonText className="text-brand font-bold text-base">
-                  Log In
-                </ButtonText>
-              </Button>
-            </HStack>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

@@ -16,13 +16,12 @@ import { AppInput } from "@/src/components/AppComponents/AppInput";
 import { AppButton } from "@/src/components/AppComponents/AppButton";
 import { AppHeader } from "@/src/components/AppComponents/AppHeader";
 import { AppSocial } from "@/src/components/AppComponents/AppSocial";
+
 import { AppSelect } from "@/src/components/AppComponents/AppSelect";
-import { useDocumentTypes } from "@/src/hooks/auth/useDocumentTypes";
 import { usePrefixesNumber } from "@/src/hooks/auth/usePrefixesNumber";
 
 export default function RegisterScreen() {
   const registerMutation = useRegister();
-  const { data: documentTypes = [] } = useDocumentTypes();
   const { data: prefixesNumber = [] } = usePrefixesNumber();
 
   const {
@@ -42,7 +41,10 @@ export default function RegisterScreen() {
       },
       onError: (error) => {
         const msg = error.message.toLowerCase();
-        if (msg.includes("already registered") || msg.includes("already been registered")) {
+        if (
+          msg.includes("already registered") ||
+          msg.includes("already been registered")
+        ) {
           setError("email", {
             message: "Este correo ya está registrado.",
           });
@@ -99,44 +101,18 @@ export default function RegisterScreen() {
                 </View>
               </HStack>
 
-              {/* Documento */}
-              <HStack className="items-start gap-3">
-                <View style={{ flex: 1 }}>
-                  <AppSelect
-                    control={control}
-                    options={documentTypes}
-                    name="tipo_de_documento"
-                    label="Tipo de doc."
-                    placeholder="Seleccionar"
-                    containerClassName="mb-3"
-                    selectClassName="h-12"
-                  />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <AppInput
-                    control={control}
-                    name="documento"
-                    label="N° de documento"
-                    placeholder="12345678"
-                    keyboardType="number-pad"
-                    containerClassName="mb-0"
-                    inputClassName="h-12"
-                    error={errors.documento?.message}
-                  />
-                </View>
-              </HStack>
-
-              {/* Teléfono */}
-              <HStack className="items-start gap-3">
-                <View style={{ flex: 1 }}>
+              {/* Teléfono Unificado Visualmente */}
+              <HStack className="items-start gap-0">
+                <View style={{ width: 110 }}>
                   <AppSelect
                     control={control}
                     options={prefixesNumber}
                     name="prefixes_number"
                     label="Prefijo"
                     placeholder="0414"
-                    containerClassName="mb-3"
-                    selectClassName="h-12"
+                    containerClassName="mb-0"
+                    selectClassName="h-14 rounded-r border-r border-typography-200"
+                    error={errors.prefixes_number?.message}
                   />
                 </View>
                 <View style={{ flex: 1 }}>
@@ -147,19 +123,11 @@ export default function RegisterScreen() {
                     placeholder="1234567"
                     keyboardType="phone-pad"
                     containerClassName="mb-0"
-                    inputClassName="h-12"
+                    inputClassName="h-14 rounded-l-none"
                     error={errors.phone?.message}
                   />
                 </View>
               </HStack>
-
-              <AppInput
-                control={control}
-                name="state"
-                label="Estado / Región"
-                placeholder="Ej. Miranda, Caracas..."
-                error={errors.state?.message}
-              />
 
               <AppInput
                 control={control}

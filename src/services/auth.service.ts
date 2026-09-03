@@ -18,11 +18,7 @@ export const AuthService = {
       password,
       name,
       last_name,
-      documento,
       phone,
-      state,
-      tipo_de_documento,
-      prefixes_number,
     } = params;
 
     // Paso 1: Crear usuario en Supabase Auth (sin crear sesión activa)
@@ -37,7 +33,7 @@ export const AuthService = {
 
     const userId = authData.user.id;
 
-    // Paso 2: Insertar perfil en la tabla pública 'user' con prefijo y teléfono separados
+    // Paso 2: Insertar perfil en la tabla pública 'user'
     const { data: userData, error: userError } = await supabase
       .from("user")
       .insert([
@@ -45,13 +41,11 @@ export const AuthService = {
           id: userId,
           name,
           last_name,
-          documento,
-          state,
-          prefixes_number,
+          prefixes_number: params.prefixes_number,
+          phone: params.phone,
           last_seen: new Date().toISOString(),
           avatar_url: null,
-          tipo_de_documento,
-        },
+        } as any,
       ])
       .select()
       .single();
@@ -90,7 +84,7 @@ export const AuthService = {
 
   // Obtiene los tipos de documento desde el ENUM de Supabase
   async getDocumentTypes() {
-    const { data, error } = await supabase.rpc("get_document_type_enum");
+    const { data, error } = await (supabase.rpc as any)("get_document_type_enum");
 
     if (error) throw new Error(error.message);
 
@@ -101,11 +95,14 @@ export const AuthService = {
   },
 
   async getPrefixesNumber() {
-    const { data, error } = await supabase.rpc("get_prefixes_number");
+    const { data, error } = await (supabase.rpc as any)("get_prefixes_number");
 
     if (error) throw new Error(error.message);
 
-    return (data as string[]).map((type) => ({
+    // Remove any potential duplicates from the database
+    const uniquePrefixes = Array.from(new Set(data as string[]));
+
+    return uniquePrefixes.map((type) => ({
       label: type,
       value: type,
     }));

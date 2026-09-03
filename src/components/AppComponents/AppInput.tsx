@@ -31,6 +31,7 @@ interface AppInputProps {
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
   containerClassName?: string;
   inputClassName?: string;
+  onChangeTextInterceptor?: (text: string) => string;
 }
 
 export function AppInput({
@@ -44,6 +45,7 @@ export function AppInput({
   autoCapitalize = "sentences",
   containerClassName = "",
   inputClassName = "",
+  onChangeTextInterceptor,
 }: AppInputProps) {
   const [showPassword, setShowPassword] = React.useState(false);
 
@@ -65,7 +67,10 @@ export function AppInput({
             <InputField
               placeholder={placeholder}
               value={value}
-              onChangeText={onChange}
+              onChangeText={(text) => {
+                const newText = onChangeTextInterceptor ? onChangeTextInterceptor(text) : text;
+                onChange(newText);
+              }}
               type={isPassword && !showPassword ? "password" : "text"}
               keyboardType={keyboardType}
               autoCapitalize={autoCapitalize}

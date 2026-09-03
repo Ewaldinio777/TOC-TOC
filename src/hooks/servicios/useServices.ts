@@ -1,20 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/utils/supabase";
+import { ServicesService } from "@/src/services/services.service";
 
 export const useServices = () => {
   return useQuery({
     queryKey: ["services"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("service")
-        .select("*")
-        .order("service_type");
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return data;
-    },
+    queryFn: () => ServicesService.getServices(),
+    staleTime: 1000 * 60 * 15, // 15 minutos en caché
   });
 };

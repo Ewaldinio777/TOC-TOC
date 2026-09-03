@@ -6,7 +6,14 @@ export default function ServicesLayout() {
       <Stack.Screen
         name="services-screen"
         options={{
-          title: "Servicios",
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="become-provider"
+        options={{
+          title: "Convertirse en Proveedor",
+          headerShown: false,
         }}
       />
     </Stack>
